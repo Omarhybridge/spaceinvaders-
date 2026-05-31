@@ -33,4 +33,3 @@ class Ship:
         return self.ship_img.get_height()
 
 
-class Enemy(Ship):

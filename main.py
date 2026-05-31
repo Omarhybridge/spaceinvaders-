@@ -5,7 +5,14 @@ from Shipclass import Ship
 
 pygame.init()
 
-BULLET_IMAGE = pygame.image.load(os.path.join('img', 'BULLET_IMAGE.png'))
+current_dir = os.path.dirname(__file__)
+BULLET_IMAGE = pygame.image.load(os.path.join(current_dir, 'img', 'bullet_image.png'))
+ENEMY_BLUE_IMAGE = pygame.image.load(os.path.join(current_dir, 'img', 'enemy_blue_image.png'))
+ENEMY_GREEN_IMAGE = pygame.image.load(os.path.join(current_dir, 'img', 'enemy_green_image.png'))
+ENEMY_PURPLE_IMAGE = pygame.image.load(os.path.join(current_dir, 'img', 'enemy_purple_image.png'))
+SHOT_BLUE_IMAGE = pygame.image.load(os.path.join(current_dir, 'img', 'shot_blue.png'))
+SHOT_GREEN_IMAGE = pygame.image.load(os.path.join(current_dir, 'img', 'shot_green.png'))
+SHOT_PURPLE_IMAGE = pygame.image.load(os.path.join(current_dir, 'img', 'shot_purple.png'))
 class Game:
     def __init__(self, font, FPS, lives, window, screen_width, screen_height, bullets=0, clock=pygame.time.Clock()):
         self.font = font
@@ -60,7 +67,7 @@ class Game:
 WIDTH, HEIGHT = 800, 600
 window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Space Invaders")
-font = pygame.font.Font(os.path.join('sprite', 'halo.ttf'), 30)
+font = pygame.font.Font(os.path.join(current_dir, 'sprite', 'halo.ttf'), 30)
 game = Game(font=font, FPS=60, lives=3, window=window,
             screen_width=WIDTH, screen_height=HEIGHT, bullets=10)
 
