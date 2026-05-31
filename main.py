@@ -83,6 +83,19 @@ player.bullet_img = BULLET_IMAGE
 enemy_creator = Enemy(speed=2)
 enemies = enemy_creator.create(10)
 
+# Carga dinámica de la clase Drawing desde 'clase drawing.py' y la instancia
+drawing = None
+try:
+    drawing_spec = importlib.util.spec_from_file_location("clase_drawing", os.path.join(current_dir, "clase drawing.py"))
+    if drawing_spec and drawing_spec.loader:
+        clase_drawing = importlib.util.module_from_spec(drawing_spec)
+        drawing_spec.loader.exec_module(clase_drawing)
+        Drawing = getattr(clase_drawing, "Drawing", None)
+        if Drawing:
+            drawing = Drawing(window)
+except Exception:
+    drawing = None
+
 music_path = os.path.join(current_dir, 'music.mp3')
 if os.path.exists(music_path):
     pygame.mixer.music.load(music_path)
@@ -117,7 +130,10 @@ while running:
         if keys[pygame.K_RIGHT] and player.x + player.get_width() < WIDTH:
             player.x += 5
 
-    window.blit(BACKGROUND_IMAGE, (0, 0))
+    if drawing and hasattr(drawing, 'draw_background'):
+        drawing.draw_background()
+    else:
+        window.blit(BACKGROUND_IMAGE, (0, 0))
     player.draw(window)
 
     for enemy in enemies:
