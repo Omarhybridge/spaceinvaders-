@@ -4,10 +4,19 @@ import sys
 import importlib.util
 from Shipclass import Ship
 
+# Importar la clase player
+current_dir = os.path.dirname(__file__)
+player_spec = importlib.util.spec_from_file_location(
+    "clase_player",
+    os.path.join(current_dir, "clase player.py")
+)
+clase_player = importlib.util.module_from_spec(player_spec)
+player_spec.loader.exec_module(clase_player)
+PlayerClass = clase_player.player
+
 pygame.init()
 pygame.mixer.init()
 
-current_dir = os.path.dirname(__file__)
 spec = importlib.util.spec_from_file_location(
     "clase_enemy",
     os.path.join(current_dir, "Clase enemy.py")
@@ -55,7 +64,7 @@ class Game:
             return False
         
     def reload_bullets(self, bulllet):
-        self.bullets = Bullet
+        self.bullets = bulllet
     
     def draw_HUD(self):
         offset = 0
@@ -75,10 +84,17 @@ font = pygame.font.Font(None, 30)
 game = Game(font=font, FPS=60, lives=3, window=window,
             screen_width=WIDTH, screen_height=HEIGHT, bullets=10)
 
-player = Ship(x=WIDTH // 2 - PLAYER_IMAGE.get_width() // 2, y=HEIGHT - 100, health=100)
-player.ship_img = PLAYER_IMAGE
+player = PlayerClass(
+    x=WIDTH // 2 - PLAYER_IMAGE.get_width() // 2,
+    y=HEIGHT - 100,
+    ship_img=PLAYER_IMAGE,
+    bullet_img=BULLET_IMAGE,
+    x_speed=5,
+    y_speed=5,
+    bullet_speed=10,
+    health=100
+)
 player.mask = pygame.mask.from_surface(player.ship_img)
-player.bullet_img = BULLET_IMAGE
 
 enemy_creator = Enemy(speed=2)
 enemies = enemy_creator.create(10)
@@ -115,20 +131,15 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        elif not has_game_over and event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                if game.bullets > 0:
-                    game.bullets -= 1
-                    print(" QUEDAN {} BALAS".format(game.bullets))
-                else:
-                    print("###NO QUEDAN BALAS###")
 
     keys = pygame.key.get_pressed()
     if not has_game_over:
-        if keys[pygame.K_LEFT] and player.x > 0:
-            player.x -= 5
-        if keys[pygame.K_RIGHT] and player.x + player.get_width() < WIDTH:
-            player.x += 5
+        player.move(WIDTH, HEIGHT)
+        player.create_bullets()
+        player.update_cooldowns()
+    
+    # Sincronizar el contador de balas del HUD con las balas disponibles del jugador
+    game.bullets = len(player.bullets)
 
     if drawing and hasattr(drawing, 'draw_background'):
         drawing.draw_background()
@@ -140,11 +151,22 @@ while running:
         if not has_game_over:
             enemy.move()
         enemy.draw(window)
+        
+        # Verificar colisión entre balas y enemigos
+        if player.hit(enemy):
+            if enemy in enemies:
+                enemies.remove(enemy)
+                print("¡Enemigo destruido!")
+        
         offset = (int(enemy.x - player.x), int(enemy.y - player.y))
         if not has_game_over and enemy.mask.overlap(player.mask, offset):
             game.lives = 0
             has_game_over = True
             print("GAME OVER: El enemigo tocó a la nave")
+
+    # Dibujar las balas al final para que aparezcan encima de todo
+    if not has_game_over:
+        player.fire(window)
 
     if game.over():
         has_game_over = True
