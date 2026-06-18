@@ -8,7 +8,7 @@ from Shipclass import Ship
 current_dir = os.path.dirname(__file__)
 player_spec = importlib.util.spec_from_file_location(
     "clase_player",
-    os.path.join(current_dir, "clase player.py")
+    os.path.join(current_dir, "clase_player.py")
 )
 clase_player = importlib.util.module_from_spec(player_spec)
 player_spec.loader.exec_module(clase_player)
@@ -19,7 +19,7 @@ pygame.mixer.init()
 
 spec = importlib.util.spec_from_file_location(
     "clase_enemy",
-    os.path.join(current_dir, "Clase enemy.py")
+    os.path.join(current_dir, "Clase_enemy.py")
 )
 clase_enemy = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(clase_enemy)
@@ -75,6 +75,9 @@ class Game:
         for i in range(self.bullets):
             offset += self.bullet_img.get_width()
             self.window.blit(self.bullet_img, (self.WIDTH - offset, self.HEIGHT - 50))
+    
+    def reload_bullet(self, bullet):
+        self.bullets = bullet
 
 #====================MAIN====================#
 WIDTH, HEIGHT = 800, 600
